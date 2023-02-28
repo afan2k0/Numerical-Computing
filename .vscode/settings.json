@@ -8,6 +8,7 @@
         "cstdlib": "cpp",
         "xmemory": "cpp",
         "initializer_list": "cpp",
-        "xutility": "cpp"
+        "xutility": "cpp",
+        "unordered_map": "cpp"
     }
 }

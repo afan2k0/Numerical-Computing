@@ -9,12 +9,13 @@
 #include "iostream"
 #include "string"
 #include <cmath>
+#include <unordered_map>
 using namespace std;
 
 //global variables
 
 
-
+//fix mantissa: currently outputs too many characters!
 
 //prototypes
 void collect(double x); //collects number entered by used
@@ -27,6 +28,7 @@ void binRepresenation(string& bin, string whole, string dec); //concats whole an
 void getMantissa(string& mantissa, string bin, int& shifts); //gets matissa and shifts
 void getExponent(string& exponent, int shifts); //get exponent
 void ieeeDouble(char sign, string exponent, string mantissa, string& stringDouble); //combine sign, exponent, mantissa
+void toHex(string& hexString, string doubleString); //convert double to hex
 int main() {
 
     //declarations/ initialization
@@ -43,8 +45,9 @@ int main() {
     string mantissa = "";
     string exponent = "";
     string stringDouble = "";
+    string hexString = "";
     //1. ask the user to enter the value to convert to IEEE
-    cout << "Please enter a value to convert to IEEE";
+    cout << "Please enter a value to convert to IEEE: ";
     cin >> number;
     //2. find the significant bit
     sign_collection(number, sign);
@@ -53,26 +56,13 @@ int main() {
     // 10.25 - integer part = 10 decimal part = 0.25
 
     isolate(number, intpart, decpart);
-    cout << "intpart: " << intpart << endl;
-    cout << "decpart: " << decpart << endl;
-
-    inttable(intpart, integerbinary, 12);
-    cout << "intString: " << integerbinary << endl;
+    inttable(intpart, integerbinary, 18);
     toBinaryDec(decpart, decbinary);
-    cout << "decpart: " << decbinary << endl;
     binRepresenation(bin, integerbinary, decbinary);
-    cout << "binary representation: " << bin << endl;
-
     getMantissa(mantissa, bin, shifts);
-    //display(sign, intpart, decpart, integerbinary);
-
     getExponent(exponent, shifts);
     ieeeDouble(sign, exponent, mantissa, stringDouble);
-
-    cout << endl << "sign: " << sign << endl;
-    cout << "exponent: " << exponent << endl;
-    cout << "mantissa: " << mantissa << endl;
-    cout << "full double: " << stringDouble;
+    toHex(hexString, stringDouble);
     return 0;
 
 
@@ -80,7 +70,7 @@ int main() {
 
 // communicating by pass by reference
 void collect(double& x) {
-    cout << "Please enter a value to convert to IEEE";
+    cout << "Please enter a value to convert to IEEE: ";
     cin >> x;
 }
 
@@ -164,21 +154,11 @@ void getMantissa(string& mantissa, string bin, int& shifts)
 {
     int decIndex = 0;
     int firstOccurenceIndex = 0;
-    for(int i = 0; i<bin.length(); i++)
-    {
-        if(bin[i] == '.')
-        {
-            decIndex = i;
-            break;
-        }
-    }
     decIndex = bin.find('.');
-    cout << "decIndex: " << decIndex << endl;
     firstOccurenceIndex = bin.find('1');
-    cout << "firstOccurenceIndex: " << firstOccurenceIndex << endl;
+
 
     shifts = decIndex - firstOccurenceIndex - 1;
-    cout << "shifts: " << shifts << endl;
     mantissa = bin.substr(firstOccurenceIndex+1, bin.length());
     string tempMantissa = mantissa;
     mantissa = "";
@@ -189,15 +169,12 @@ void getMantissa(string& mantissa, string bin, int& shifts)
             mantissa += tempMantissa[i];
         }
     }
-    cout << mantissa;
+    mantissa = mantissa.substr(0, 52);
 }
 
 void getExponent(string& exponent, int shifts)
 {
-    string exp = "";
-    inttable(1023+shifts, exp, 11);
-    cout << "exponent: " << exp;
-    exponent = exp;
+    inttable(1023+shifts, exponent, 11);
 }
 
 void ieeeDouble(char sign, string exponent, string mantissa, string& stringDouble)
@@ -205,5 +182,34 @@ void ieeeDouble(char sign, string exponent, string mantissa, string& stringDoubl
     stringDouble += sign;
     stringDouble += exponent;
     stringDouble += mantissa;
-    cout << endl << "full double: " << stringDouble;
+}
+
+void toHex(string& hexString, string doubleString)
+{
+    unordered_map<string, char> umap;
+    umap["0000"] = '0';
+    umap["0001"] = '1';
+    umap["0010"] = '2';
+    umap["0011"] = '3';
+    umap["0100"] = '4';
+    umap["0101"] = '5';
+    umap["0110"] = '6';
+    umap["0111"] = '7';
+    umap["1000"] = '8';
+    umap["1001"] = '9';
+    umap["1010"] = 'A';
+    umap["1011"] = 'B';
+    umap["1100"] = 'C';
+    umap["1101"] = 'D';
+    umap["1110"] = 'E';
+    umap["1111"] = 'F';
+
+    string temp = "";
+    hexString = "0x";
+    for(int i = 0; i<64; i+=4)
+    {     
+        temp = doubleString.substr(i,4);
+        hexString += umap.at(temp);
+    }
+    cout << endl << hexString;
 }
