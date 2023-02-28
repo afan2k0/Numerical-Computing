@@ -4,6 +4,10 @@
         "ostream": "cpp",
         "iomanip": "cpp",
         "xstring": "cpp",
-        "cmath": "cpp"
+        "cmath": "cpp",
+        "cstdlib": "cpp",
+        "xmemory": "cpp",
+        "initializer_list": "cpp",
+        "xutility": "cpp"
     }
 }
