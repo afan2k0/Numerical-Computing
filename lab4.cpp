@@ -37,15 +37,10 @@ int main() {
     char sign;
     int intpart = 0;
     double decpart = 0.0;
-    string integerbinary = "";
-    string decbinary = "";
-    string bin = "";
-    int bits = 0;
     int shifts = 0;
-    string mantissa = "";
-    string exponent = "";
-    string stringDouble = "";
-    string hexString = "";
+    string integerbinary, decbinary, bin, mantissa, exponent, stringDouble, hexString;
+    integerbinary = decbinary = bin = mantissa = exponent = stringDouble = hexString = "";
+    
     //1. ask the user to enter the value to convert to IEEE
     cout << "Please enter a value to convert to IEEE: ";
     cin >> number;
@@ -56,16 +51,16 @@ int main() {
     // 10.25 - integer part = 10 decimal part = 0.25
 
     isolate(number, intpart, decpart);
-    inttable(intpart, integerbinary, 18);
+    inttable(intpart, integerbinary, 64);
     toBinaryDec(decpart, decbinary);
     binRepresenation(bin, integerbinary, decbinary);
     getMantissa(mantissa, bin, shifts);
     getExponent(exponent, shifts);
     ieeeDouble(sign, exponent, mantissa, stringDouble);
     toHex(hexString, stringDouble);
+
+    cout << hexString;
     return 0;
-
-
 }
 
 // communicating by pass by reference
@@ -99,17 +94,6 @@ void isolate(double number, int& intpart, double& decpart) {
 
 
 void display(char sign, int intpart, double decpart, string integerbinary) {
-
-    string st = "";
-    if (sign == '0')
-        st = "Positive";
-    else
-        st = "negative";
-
-    cout << "the sign of the number is" << st << endl;
-    cout << "the integer part is: " << abs(intpart) << endl;
-    cout << "the decimal part is: " << decpart << endl;
-    cout << "the binary value ";
 
 }
 
@@ -145,9 +129,7 @@ void toBinaryDec(double decpart, string& decimaltobinary) {
 
 void binRepresenation(string& bin, string whole, string dec)
 {
-    bin += whole;
-    bin += ".";
-    bin += dec;
+    bin = whole + "." + dec;
 }
 
 void getMantissa(string& mantissa, string bin, int& shifts)
@@ -211,5 +193,4 @@ void toHex(string& hexString, string doubleString)
         temp = doubleString.substr(i,4);
         hexString += umap.at(temp);
     }
-    cout << endl << hexString;
 }
