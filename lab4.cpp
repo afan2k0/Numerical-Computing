@@ -123,8 +123,6 @@ void collect(double& x) {
 
 // a function to extract a number sign
 void sign_collection(double x, char& s) {
-
-
     if (x >= 0)
         s = '0'; //0 for positive
     else
@@ -133,30 +131,12 @@ void sign_collection(double x, char& s) {
 
 //a function that takes a double value and returns an integer and a double
 void isolate(double number, int& intpart, double& decpart) {
-
     number = abs(number);
     intpart = (int)number; //typecast
-
     decpart = number - intpart;
 }
 
-
-// a function for verification
-// struct values_t {
-//     string integerbinary;
-//     string decbinary;
-//     string bin;
-//     string mantissa;
-//     string exponent;
-//     string stringDouble;
-//     string hexString;
-//     double number;
-//     char sign;
-//     int intpart = 0;
-//     double decpart = 0.0;
-//     int shifts = 0;
-// };
-
+//Function 9: write to file
 void writeToFile(values_t values) {
     ofstream myfile;
     myfile.open("output.txt");
@@ -201,11 +181,13 @@ void toBinaryDec(double decpart, string& decimaltobinary) {
     }
 }
 
+//obtain binary represenation of user input
 void binRepresenation(string& bin, string whole, string dec)
 {
     bin = whole + "." + dec;
 }
 
+//obtain mantissa of input
 void getMantissa(string& mantissa, string bin, int& shifts)
 {
     int decIndex = 0;
@@ -228,16 +210,16 @@ void getMantissa(string& mantissa, string bin, int& shifts)
     mantissa = mantissa.substr(0, 52);
 }
 
+//obtain exponent portion
 void getExponent(string& exponent, int shifts)
 {
     inttable(1023+shifts, exponent, 11);
 }
 
+//obtain ieee double in binary
 void ieeeDouble(char sign, string exponent, string mantissa, string& stringDouble)
 {
-    stringDouble += sign;
-    stringDouble += exponent;
-    stringDouble += mantissa;
+    stringDouble = sign+exponent+mantissa;
 }
 
 void toHex(string& hexString, string doubleString)
