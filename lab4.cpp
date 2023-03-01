@@ -10,12 +10,24 @@
 #include "string"
 #include <cmath>
 #include <unordered_map>
+#include <fstream>
 using namespace std;
 
 //global variables
-
-
-//fix mantissa: currently outputs too many characters!
+struct values_t {
+    string integerbinary;
+    string decbinary;
+    string bin;
+    string mantissa;
+    string exponent;
+    string stringDouble;
+    string hexString;
+    double number;
+    char sign;
+    int intpart = 0;
+    double decpart = 0.0;
+    int shifts = 0;
+};
 
 //prototypes
 void collect(double x); //collects number entered by used
@@ -29,37 +41,76 @@ void getMantissa(string& mantissa, string bin, int& shifts); //gets matissa and 
 void getExponent(string& exponent, int shifts); //get exponent
 void ieeeDouble(char sign, string exponent, string mantissa, string& stringDouble); //combine sign, exponent, mantissa
 void toHex(string& hexString, string doubleString); //convert double to hex
+void writeToFile(values_t values);
 int main() {
-
+    values_t values;
     //declarations/ initialization
-
-    double number;
-    char sign;
-    int intpart = 0;
-    double decpart = 0.0;
-    int shifts = 0;
-    string integerbinary, decbinary, bin, mantissa, exponent, stringDouble, hexString;
-    integerbinary = decbinary = bin = mantissa = exponent = stringDouble = hexString = "";
-    
     //1. ask the user to enter the value to convert to IEEE
     cout << "Please enter a value to convert to IEEE: ";
-    cin >> number;
+    cin >> values.number;
     //2. find the significant bit
-    sign_collection(number, sign);
+    sign_collection(values.number, values.sign);
 
     //1. function to isolate integer part from the decimal
     // 10.25 - integer part = 10 decimal part = 0.25
 
-    isolate(number, intpart, decpart);
-    inttable(intpart, integerbinary, 64);
-    toBinaryDec(decpart, decbinary);
-    binRepresenation(bin, integerbinary, decbinary);
-    getMantissa(mantissa, bin, shifts);
-    getExponent(exponent, shifts);
-    ieeeDouble(sign, exponent, mantissa, stringDouble);
-    toHex(hexString, stringDouble);
-
-    cout << hexString;
+    isolate(values.number, values.intpart, values.decpart);
+    inttable(values.intpart, values.integerbinary, (int)log2(abs(values.number))+1);
+    toBinaryDec(values.decpart, values.decbinary);
+    binRepresenation(values.bin, values.integerbinary, values.decbinary);
+    getMantissa(values.mantissa, values.bin, values.shifts);
+    getExponent(values.exponent, values.shifts);
+    ieeeDouble(values.sign, values.exponent, values.mantissa, values.stringDouble);
+    toHex(values.hexString, values.stringDouble);
+    
+    cout << values.hexString << endl;
+    cout << "Please choose one of the following operations: " << endl;
+    cout << "1. DISPLAY THE SIGN BIT VALUE " << endl;
+    cout << "2. DISPLAY THE INTEGER PART IN BOTH BASE-10 AND BINARY FORMATS" << endl;
+    cout << "3. DISPLAY THE DECIMAL PART IN BOTH BASE-10 AND BINARY FORMATS" << endl;
+    cout << "4. DISPLAY THE NUMBER ENTERED IN BOTH BASE-10 AND BINARY FORMATS" << endl;
+    cout << "5. DISPLAY THE MANTISSA IN BINARY FORMAT" << endl;
+    cout << "6. DISPLAY THE EXPONENT IN BOTH BASE-10 AND BINARY FORMAT" << endl;
+    cout << "7. DISPLAY THE IEEE 754 DOUBLE PRECISION BINARY LAYOUT" << endl;
+    cout << "8. DISPLAY THE IEEE 754 DOUBLE PRECISION HEX LAYOUT" << endl;
+    cout << "9. SEND THE DETAILED SOLUTION TO AN EXTERNAL FILE" << endl;
+    int selection = 1;
+    while(selection != 0)
+    {
+        cout << "enter selection(0 to quit): ";
+        cin >> selection;
+        switch(selection)
+        {          
+            case 1:
+                cout << values.sign << endl;
+                break;
+            case 2:
+                cout << values.intpart << " " << values.integerbinary << endl;
+                break;
+            case 3:
+                cout << values.decpart << " " << values.decbinary << endl;
+                break;
+            case 4:
+                cout << values.number << " " << values.bin << endl;
+                break;
+            case 5:
+                cout <<values.mantissa << endl;
+                break;
+            case 6:
+                cout << 1023+values.shifts << " " << values.exponent << endl;
+                break;
+            case 7:
+                cout << values.stringDouble << endl;
+                break;
+            case 8:
+                cout << values.hexString << endl;
+                break;
+            case 9:
+                writeToFile(values);
+            default:
+                return 0;
+        }
+    }
     return 0;
 }
 
@@ -91,10 +142,33 @@ void isolate(double number, int& intpart, double& decpart) {
 
 
 // a function for verification
+// struct values_t {
+//     string integerbinary;
+//     string decbinary;
+//     string bin;
+//     string mantissa;
+//     string exponent;
+//     string stringDouble;
+//     string hexString;
+//     double number;
+//     char sign;
+//     int intpart = 0;
+//     double decpart = 0.0;
+//     int shifts = 0;
+// };
 
-
-void display(char sign, int intpart, double decpart, string integerbinary) {
-
+void writeToFile(values_t values) {
+    ofstream myfile;
+    myfile.open("output.txt");
+    myfile << "sign: " << values.sign << endl;
+    myfile << "integer part: " << values.intpart << " " << values.integerbinary << endl;
+    myfile << "decimal part: " << values.decpart << " " << values.decbinary << endl;
+    myfile << "number entered: " << values.number << " " << values.bin << endl;
+    myfile << "mantissa: " << values.mantissa << endl;
+    myfile << "exponent: " << 1023+values.shifts << " " << values.exponent << endl;
+    myfile << "IEEE754 Double Binary: " << values.stringDouble << endl;
+    myfile << "IEEE754 Hex: " << values.hexString << endl;
+    myfile.close();
 }
 
 //convert integer to decimal

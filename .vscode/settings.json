@@ -9,6 +9,7 @@
         "xmemory": "cpp",
         "initializer_list": "cpp",
         "xutility": "cpp",
-        "unordered_map": "cpp"
+        "unordered_map": "cpp",
+        "xlocmon": "cpp"
     }
 }
