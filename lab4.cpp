@@ -27,10 +27,11 @@ struct values_t {
     int intpart = 0;
     double decpart = 0.0;
     int shifts = 0;
+    int intBinarySize = 0;
 };
 
 //prototypes
-void collect(double x); //collects number entered by used
+void collect(double& x); //collects number entered by used
 void sign_collection(double x, char& s); //gets sign of number
 void isolate(double number, int& intpart, double& decpart); //Has 3 parameters, number is the value entered by the user and this function returns the decimal part and the integer part. 
 void display(char sign, int intpart, double decpart, string integerbinary); //display sign and exponent part
@@ -46,8 +47,7 @@ int main() {
     values_t values;
     //declarations/ initialization
     //1. ask the user to enter the value to convert to IEEE
-    cout << "Please enter a value to convert to IEEE: ";
-    cin >> values.number;
+    collect(values.number);
     //2. find the significant bit
     sign_collection(values.number, values.sign);
 
@@ -63,7 +63,6 @@ int main() {
     ieeeDouble(values.sign, values.exponent, values.mantissa, values.stringDouble);
     toHex(values.hexString, values.stringDouble);
     
-    cout << values.hexString << endl;
     cout << "Please choose one of the following operations: " << endl;
     cout << "1. DISPLAY THE SIGN BIT VALUE " << endl;
     cout << "2. DISPLAY THE INTEGER PART IN BOTH BASE-10 AND BINARY FORMATS" << endl;
@@ -153,8 +152,7 @@ void writeToFile(values_t values) {
 
 //convert integer to decimal
 void inttable(int intpart, string& integerbinary, int bits) {
-
-    for (int i = 0; i < bits; i++) {
+      for (int i = 0; i < bits; i++) {
 
         if (intpart % 2 == 0)
             integerbinary = "0" + integerbinary;
@@ -167,7 +165,9 @@ void inttable(int intpart, string& integerbinary, int bits) {
 
 //function to convert decimal part to binary
 void toBinaryDec(double decpart, string& decimaltobinary) {
-    for (int i = 0; i < 52; i++) {
+    int shift = 0;
+
+    for (int i = 0; i < 64; i++) {
 
         decpart *= 2;
         if (decpart < 1) {
@@ -195,8 +195,11 @@ void getMantissa(string& mantissa, string bin, int& shifts)
     decIndex = bin.find('.');
     firstOccurenceIndex = bin.find('1');
 
-
-    shifts = decIndex - firstOccurenceIndex - 1;
+    shifts = decIndex - firstOccurenceIndex;
+    if(shifts > 0)
+    {
+        shifts--;
+    }
     mantissa = bin.substr(firstOccurenceIndex+1, bin.length());
     string tempMantissa = mantissa;
     mantissa = "";
@@ -214,6 +217,7 @@ void getMantissa(string& mantissa, string bin, int& shifts)
 void getExponent(string& exponent, int shifts)
 {
     inttable(1023+shifts, exponent, 11);
+    
 }
 
 //obtain ieee double in binary
