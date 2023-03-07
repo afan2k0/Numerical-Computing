@@ -6,8 +6,8 @@
 //////School: NJIT
 //////Description: lecture functions
 
-#include "iostream"
-#include "string"
+#include <iostream>
+#include <string>
 #include <cmath>
 #include <unordered_map>
 #include <fstream>
@@ -15,33 +15,32 @@ using namespace std;
 
 //global variables
 struct values_t {
-    string integerbinary;
-    string decbinary;
-    string bin;
+    string integer_binary;
+    string decimal_binary;
+    string full_binary;
     string mantissa;
     string exponent;
-    string stringDouble;
-    string hexString;
+    string number_double;
+    string hex_string;
     double number;
     char sign;
-    int intpart = 0;
-    double decpart = 0.0;
+    int integer_part = 0;
+    double decimal_part = 0.0;
     int shifts = 0;
-    int intBinarySize = 0;
 };
 
 //prototypes
 void collect(double& x); //collects number entered by used
 void sign_collection(double x, char& s); //gets sign of number
-void isolate(double number, int& intpart, double& decpart); //Has 3 parameters, number is the value entered by the user and this function returns the decimal part and the integer part. 
-void display(char sign, int intpart, double decpart, string integerbinary); //display sign and exponent part
-void inttable(int intpart, string& integerbinary, int bits); //convert int part to binary
-void toBinaryDec(double decpart, string& decimaltobinary); //convert decimal part to binary
-void binRepresenation(string& bin, string whole, string dec); //concats whole and fraction portion
-void getMantissa(string& mantissa, string bin, int& shifts); //gets matissa and shifts
+void isolate(double number, int& integer_part, double& decimal_part); //Has 3 parameters, number is the value entered by the user and this function returns the decimal part and the integer part. 
+void display(char sign, int integer_part, double decimal_part, string integer_binary); //display sign and exponent part
+void inttable(int integer_part, string& integer_binary, int bits); //convert int part to binary
+void toBinaryDec(double decimal_part, string& decimaltobinary); //convert decimal part to binary
+void binRepresenation(string& full_binary, string whole, string dec); //concats whole and fraction portion
+void getMantissa(string& mantissa, string full_binary, int& shifts); //gets matissa and shifts
 void getExponent(string& exponent, int shifts); //get exponent
-void ieeeDouble(char sign, string exponent, string mantissa, string& stringDouble); //combine sign, exponent, mantissa
-void toHex(string& hexString, string doubleString); //convert double to hex
+void ieeeDouble(char sign, string exponent, string mantissa, string& number_double); //combine sign, exponent, mantissa
+void toHex(string& hex_string, string doubleString); //convert double to hex
 void writeToFile(values_t values);
 int main() {
     values_t values;
@@ -52,16 +51,16 @@ int main() {
     sign_collection(values.number, values.sign);
 
     //1. function to isolate integer part from the decimal
-    // 10.25 - integer part = 10 decimal part = 0.25
+    //10.25 - integer part = 10 decimal part = 0.25
 
-    isolate(values.number, values.intpart, values.decpart);
-    inttable(values.intpart, values.integerbinary, (int)log2(abs(values.number))+1);
-    toBinaryDec(values.decpart, values.decbinary);
-    binRepresenation(values.bin, values.integerbinary, values.decbinary);
-    getMantissa(values.mantissa, values.bin, values.shifts);
+    isolate(values.number, values.integer_part, values.decimal_part);
+    inttable(values.integer_part, values.integer_binary, (int)log2(abs(values.number))+1);
+    toBinaryDec(values.decimal_part, values.decimal_binary);
+    binRepresenation(values.full_binary, values.integer_binary, values.decimal_binary);
+    getMantissa(values.mantissa, values.full_binary, values.shifts);
     getExponent(values.exponent, values.shifts);
-    ieeeDouble(values.sign, values.exponent, values.mantissa, values.stringDouble);
-    toHex(values.hexString, values.stringDouble);
+    ieeeDouble(values.sign, values.exponent, values.mantissa, values.number_double);
+    toHex(values.hex_string, values.number_double);
     
     cout << "Please choose one of the following operations: " << endl;
     cout << "1. DISPLAY THE SIGN BIT VALUE " << endl;
@@ -84,13 +83,13 @@ int main() {
                 cout << values.sign << endl;
                 break;
             case 2:
-                cout << values.intpart << " " << values.integerbinary << endl;
+                cout << values.integer_part << " " << values.integer_binary << endl;
                 break;
             case 3:
-                cout << values.decpart << " " << values.decbinary << endl;
+                cout << values.decimal_part << " " << values.decimal_binary << endl;
                 break;
             case 4:
-                cout << values.number << " " << values.bin << endl;
+                cout << values.number << " " << values.full_binary << endl;
                 break;
             case 5:
                 cout <<values.mantissa << endl;
@@ -99,10 +98,10 @@ int main() {
                 cout << 1023+values.shifts << " " << values.exponent << endl;
                 break;
             case 7:
-                cout << values.stringDouble << endl;
+                cout << values.number_double << endl;
                 break;
             case 8:
-                cout << values.hexString << endl;
+                cout << values.hex_string << endl;
                 break;
             case 9:
                 writeToFile(values);
@@ -129,78 +128,64 @@ void sign_collection(double x, char& s) {
 }
 
 //a function that takes a double value and returns an integer and a double
-void isolate(double number, int& intpart, double& decpart) {
+void isolate(double number, int& integer_part, double& decimal_part) {
     number = abs(number);
-    intpart = (int)number; //typecast
-    decpart = number - intpart;
-}
-
-//Function 9: write to file
-void writeToFile(values_t values) {
-    ofstream myfile;
-    myfile.open("output.txt");
-    myfile << "sign: " << values.sign << endl;
-    myfile << "integer part: " << values.intpart << " " << values.integerbinary << endl;
-    myfile << "decimal part: " << values.decpart << " " << values.decbinary << endl;
-    myfile << "number entered: " << values.number << " " << values.bin << endl;
-    myfile << "mantissa: " << values.mantissa << endl;
-    myfile << "exponent: " << 1023+values.shifts << " " << values.exponent << endl;
-    myfile << "IEEE754 Double Binary: " << values.stringDouble << endl;
-    myfile << "IEEE754 Hex: " << values.hexString << endl;
-    myfile.close();
+    integer_part = (int)number; //typecast
+    decimal_part = number - integer_part;
 }
 
 //convert integer to decimal
-void inttable(int intpart, string& integerbinary, int bits) {
+void inttable(int integer_part, string& integer_binary, int bits) {
       for (int i = 0; i < bits; i++) {
 
-        if (intpart % 2 == 0)
-            integerbinary = "0" + integerbinary;
+        if (integer_part % 2 == 0)
+            integer_binary = "0" + integer_binary;
         else
-            integerbinary = "1" + integerbinary;
+            integer_binary = "1" + integer_binary;
 
-        intpart = int(intpart / 2);
+        integer_part = int(integer_part / 2);
     }
 }
 
 //function to convert decimal part to binary
-void toBinaryDec(double decpart, string& decimaltobinary) {
-    int shift = 0;
-
-    for (int i = 0; i < 64; i++) {
-
-        decpart *= 2;
-        if (decpart < 1) {
-            decimaltobinary = decimaltobinary + "0";
-
-        }
-        else {
-            decimaltobinary = decimaltobinary + "1";
-            decpart -= 1;
-        }
+void toBinaryDec(double decimal_part, string& decimaltobinary) {
+    if(decimal_part == 0)
+    {
+        string temp(64, '0');
+        decimaltobinary = temp;
     }
+    int intpart;
+    for (int i = 0; i < 64; i++) {
+        decimal_part *= 2;
+        intpart = decimal_part;
+        decimal_part = decimal_part - intpart;
+        
+        decimaltobinary += to_string(intpart);
+
+    }
+    cout << decimaltobinary;
 }
 
 //obtain binary represenation of user input
-void binRepresenation(string& bin, string whole, string dec)
+void binRepresenation(string& full_binary, string whole, string dec)
 {
-    bin = whole + "." + dec;
+    full_binary = whole + "." + dec;
 }
 
 //obtain mantissa of input
-void getMantissa(string& mantissa, string bin, int& shifts)
+void getMantissa(string& mantissa, string full_binary, int& shifts)
 {
     int decIndex = 0;
     int firstOccurenceIndex = 0;
-    decIndex = bin.find('.');
-    firstOccurenceIndex = bin.find('1');
+    decIndex = full_binary.find('.');
+    firstOccurenceIndex = full_binary.find('1');
 
     shifts = decIndex - firstOccurenceIndex;
     if(shifts > 0)
     {
         shifts--;
     }
-    mantissa = bin.substr(firstOccurenceIndex+1, bin.length());
+    mantissa = full_binary.substr(firstOccurenceIndex+1, full_binary.length());
     string tempMantissa = mantissa;
     mantissa = "";
     for(int i = 0; i < tempMantissa.length(); i++)
@@ -216,17 +201,16 @@ void getMantissa(string& mantissa, string bin, int& shifts)
 //obtain exponent portion
 void getExponent(string& exponent, int shifts)
 {
-    inttable(1023+shifts, exponent, 11);
-    
+    inttable(1023+shifts, exponent, 11); 
 }
 
 //obtain ieee double in binary
-void ieeeDouble(char sign, string exponent, string mantissa, string& stringDouble)
+void ieeeDouble(char sign, string exponent, string mantissa, string& number_double)
 {
-    stringDouble = sign+exponent+mantissa;
+    number_double = sign+exponent+mantissa;
 }
 
-void toHex(string& hexString, string doubleString)
+void toHex(string& hex_string, string doubleString)
 {
     unordered_map<string, char> umap;
     umap["0000"] = '0';
@@ -247,10 +231,25 @@ void toHex(string& hexString, string doubleString)
     umap["1111"] = 'F';
 
     string temp = "";
-    hexString = "0x";
+    hex_string = "0x";
     for(int i = 0; i<64; i+=4)
     {     
         temp = doubleString.substr(i,4);
-        hexString += umap.at(temp);
+        hex_string += umap.at(temp);
     }
+}
+
+//Function 9: write to file
+void writeToFile(values_t values) {
+    ofstream myfile;
+    myfile.open("output.txt");
+    myfile << "sign: " << values.sign << endl;
+    myfile << "integer part: " << values.integer_part << " " << values.integer_binary << endl;
+    myfile << "decimal part: " << values.decimal_part << " " << values.decimal_binary << endl;
+    myfile << "number entered: " << values.integer_part << to_string(values.decimal_part).substr(1) << " " << values.full_binary << endl;
+    myfile << "mantissa: " << values.mantissa << endl;
+    myfile << "exponent: " << 1023+values.shifts << " " << values.exponent << endl;
+    myfile << "IEEE754 Double Binary: " << values.number_double << endl;
+    myfile << "IEEE754 Hex: " << values.hex_string << endl;
+    myfile.close();
 }
