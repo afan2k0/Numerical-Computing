@@ -149,11 +149,6 @@ void inttable(int integer_part, string& integer_binary, int bits) {
 
 //function to convert decimal part to binary
 void toBinaryDec(double decimal_part, string& decimaltobinary) {
-    if(decimal_part == 0)
-    {
-        string temp(64, '0');
-        decimaltobinary = temp;
-    }
     int intpart;
     for (int i = 0; i < 64; i++) {
         decimal_part *= 2;
